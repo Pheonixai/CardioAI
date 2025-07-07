@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardioAI – Heart Disease Prediction</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<style>
+
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8fafd url("{{ url_for('static', filename='CardioAI background.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    .theme-toggle {
+      text-align: right;
+      padding: 14px 20px 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-toggle span {
+      font-weight: 600;
+      color: #333;
+    }
+
+    body.dark .theme-toggle span {
+      color: #eee;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 55px;
+      height: 30px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #43c6ac;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .container {
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.94);
+      padding: 40px 30px;
+      margin: 40px auto;
+      border-radius: 24px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(6px);
+      transition: background 0.4s;
+    }
+
+    body.dark .container {
+      background: rgba(30, 30, 30, 0.9);
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      color: #ff4e50;
+    }
+
+    label {
+      font-weight: 600;
+      color: inherit;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 4px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: 1.6px solid #ccc;
+      font-size: 15px;
+      background-color: #fdfdfd;
+      color: #000;
+      transition: border 0.3s ease, background 0.3s;
+    }
+
+    body.dark input,
+    body.dark select {
+      background-color: #2a2a2a;
+      color: #fff;
+      border: 1.5px solid #555;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #43c6ac;
+      background-color: #fffdf4;
+    }
+
+    body.dark input:focus,
+    body.dark select:focus {
+      background-color: #1e1e1e;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    .next-btn,
+    .prev-btn,
+    button[type="submit"] {
+      width: 48%;
+      display: inline-block;
+      padding: 12px 18px;
+      background: linear-gradient(to right, #ff4e50, #43c6ac);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+      margin: 12px 125px;
+    }
+
+    nextDiv {
+        justify-content: center;
+        background-color: black;
+        margin: auto;
+    }
+
+    .next-btn:hover,
+    .prev-btn:hover,
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(to right, #43c6ac, #ff4e50);
+    }
+
+    #spinner {
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .heart {
+      width: 50px;
+      height: 50px;
+      background-color: #ff4e50;
+      position: relative;
+      transform: rotate(-45deg);
+      animation: beat 1s infinite;
+      margin: 0 auto 8px;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      width: 50px;
+      height: 50px;
+      background-color: #ff4e50;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .heart::before {
+      top: -25px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 25px;
+      top: 0;
+    }
+
+    @keyframes beat {
+      0%, 100% {
+        transform: scale(1) rotate(-45deg);
+      }
+      50% {
+        transform: scale(1.2) rotate(-45deg);
+      }
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
+    }
+
+    body.dark .footer {
+      color: #bbb;
+    }
+    .about-text {
+  text-align: center;
+  font-size: 15px;
+  color: #555;
+  margin-top: -15px;
+  margin-bottom: 25px;
+}
+
+body.dark .about-text {
+  color: #ccc;
+}
+
+
+    @media screen and (max-width: 600px) {
+  .container {
+    margin: 10px;
+    padding: 20px 15px;
+    width: 95%;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+
+  .about-text {
+    font-size: 14px;
+    margin-bottom: 20px;
+    padding: 0 5px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  input,
+  select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .next-btn,
+  .prev-btn,
+  button[type="submit"] {
+    width: 100%;
+    margin: 10px 0;
+    font-size: 15px;
+  }
+
+  .theme-toggle {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  .footer {
+    font-size: 12px;
+    padding: 0 10px;
+  }
+
+  .heart {
+    width: 40px;
+    height: 40px;
+  }
+
+  .heart::before,
+  .heart::after {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+
+/* 🔹 Chatbot styles */
+#chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-family: 'Poppins', sans-serif;
+  z-index: 999;
+}
+
+#chatbot-button {
+  background-color: #ff4e50;
+  color: white;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 55px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#chatbox {
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+}
+
+body.dark #chatbox {
+  background-color: #222;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.chat-header {
+  background: #43c6ac;
+  color: white;
+  padding: 10px 15px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+#chat-messages div {
+  margin-bottom: 10px;
+}
+
+#user-input {
+  border: none;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  font-size: 14px;
+  width: calc(100% - 80px);
+  background: inherit;
+  color: inherit;
+}
+
+#send-btn {
+  width: 70px;
+  border: none;
+  background: #ff4e50;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+
+</style>
+
+
+<body>
+  <div class="theme-toggle">
+    <span>🌙 Dark Mode</span>
+    <label class="switch">
+      <input type="checkbox" id="theme-toggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="container">
+
+    <h2>🫀 CardioAI – Heart Disease Prediction</h2>
+    <p class="about-text"><b>
+  CardioAI uses artificial intelligence to analyze key health indicators like age, blood pressure, and cholesterol to predict the risk of heart disease.  
+  This tool helps users get early insights in a simple and fast way – all from their browser.
+</p></b>
+
+    <form id="cardio-form" action="/predict" method="POST">
+      <!-- Step 1 -->
+      <div class="form-step active">
+        <div>
+          <label for="age">Age</label>
+          <input type="number" name="age" id="age" placeholder="e.g. 45" required>
+        </div>
+        <div>
+          <label for="trestbps">Resting Blood Pressure</label>
+          <input type="number" name="trestbps" id="trestbps" placeholder="e.g. 130" required>
+        </div>
+        <div>
+          <label for="thalach">Max Heart Rate Achieved</label>
+          <input type="number" name="thalach" id="thalach" placeholder="e.g. 160" required>
+        </div>
+        <div class="nextDiv"><button type="button" class="next-btn">Next</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="form-step">
+        <div>
+          <label for="cp">Chest Pain Type</label>
+          <input type="number" name="cp" id="cp" placeholder="0–3" required>
+        </div>
+        <div>
+          <label for="exang">Exercise-Induced Angina</label>
+          <select name="exang" id="exang" required>
+            <option value="">-- Select --</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <div>
+          <label for="oldpeak">ST Depression (Oldpeak)</label>
+          <input type="number" step="0.1" name="oldpeak" id="oldpeak" placeholder="e.g. 2.3" required>
+        </div>
+        <button type="button" class="prev-btn">Back</button>
+        <button type="button" class="next-btn">Next</button>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="form-step">
+        <div>
+          <label for="ca">Number of Major Vessels Colored (ca)</label>
+          <input type="number" name="ca" id="ca" placeholder="0–4" required>
+        </div>
+        <div>
+          <label for="thal">Thalassemia</label>
+          <input type="number" name="thal" id="thal" placeholder="1–3" required>
+        </div>
+
+        <!-- Hidden fields -->
+        <input type="hidden" name="timestamp" id="timestamp">
+        <input type="hidden" name="processing_time" id="processing_time">
+        <input type="hidden" name="advice" id="advice">
+        <input type="hidden" name="chart_class0" id="chart_class0">
+        <input type="hidden" name="chart_class1" id="chart_class1">
+
+        <button type="button" class="prev-btn">Back</button>
+        <button type="submit">💡 Predict Heart Disease</button>
+      </div>
+    </form>
+
+    <div id="spinner">
+      <div class="heart"></div>
+      <p>Predicting... Please wait</p>
+    </div>
+
+    <div class="footer">
+      CardioAI Project | Built by <strong>Olamide</strong>
+    </div>
+  </div>
+  <!-- 🔹 Chatbot Button & Window -->
+<div id="chatbot-container">
+  <div id="chatbot-button">💬</div>
+  <div id="chatbox" class="hidden">
+    <div class="chat-header">CardioAI Assistant <span id="close-chat">×</span></div>
+    <div id="chat-messages"></div>
+    <input type="text" id="user-input" placeholder="Ask me anything..." />
+    <button id="send-btn">Send</button>
+  </div>
+</div>
+
+
+  <script>
+    // Multi-step form
+    const steps = document.querySelectorAll(".form-step");
+    let currentStep = 0;
+    showStep(currentStep);
+
+    function showStep(n) {
+      steps.forEach((step, i) => step.classList.toggle("active", i === n));
+    }
+
+    document.querySelectorAll(".next-btn").forEach(btn => {
+      btn.onclick = () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          showStep(currentStep);
+        }
+      };
+    });
+
+    document.querySelectorAll(".prev-btn").forEach(btn => {
+      btn.onclick = () => {
+        if (currentStep > 0) {
+          currentStep--;
+          showStep(currentStep);
+        }
+      };
+    });
+
+    // Spinner + hidden field values
+    const form = document.getElementById("cardio-form");
+    const spinner = document.getElementById("spinner");
+    let startTime = performance.now();
+    document.getElementById("timestamp").value = new Date().toLocaleString();
+
+    form.addEventListener("submit", () => {
+      let endTime = performance.now();
+      let duration = ((endTime - startTime) / 1000).toFixed(2);
+      document.getElementById("processing_time").value = `${duration} seconds`;
+      spinner.style.display = "block";
+    });
+
+    // Theme toggle
+    const toggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark');
+      toggle.checked = true;
+    }
+
+    toggle.addEventListener('change', () => {
+      if (toggle.checked) {
+        body.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+// Toggle Chatbot
+const chatButton = document.getElementById("chatbot-button");
+const chatbox = document.getElementById("chatbox");
+const closeChat = document.getElementById("close-chat");
+
+chatButton.addEventListener("click", () => {
+  chatbox.classList.toggle("hidden");
+});
+
+closeChat.addEventListener("click", () => {
+  chatbox.classList.add("hidden");
+});
+
+
+
+
+ // ... (Your existing script above remains unchanged)
+
+  // Chatbot response logic
+  const sendBtn = document.getElementById("send-btn");
+  const userInput = document.getElementById("user-input");
+  const chatMessages = document.getElementById("chat-messages");
+
+  sendBtn.addEventListener("click", handleChat);
+  userInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") handleChat();
+  });
+
+  function handleChat() {
+    const userText = userInput.value.trim();
+    if (userText === "") return;
+
+    addMessage("You", userText);
+    const response = getChatbotResponse(userText.toLowerCase());
+    setTimeout(() => {
+      addMessage("CardioAI", response);
+    }, 400);
+
+    userInput.value = "";
+  }
+
+  function addMessage(sender, message) {
+    const msgDiv = document.createElement("div");
+    msgDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function getChatbotResponse(msg) {
+  const options = {
+    1: "Heart disease refers to conditions that affect the heart, like artery problems, arrhythmias, and more.",
+    2: "Symptoms include chest pain, shortness of breath, fatigue, dizziness, or irregular heartbeat.",
+    3: "You can help prevent heart disease by staying active, eating healthy, avoiding smoking, and managing stress.",
+    4: "I can help predict heart disease risk using AI based on your health inputs.",
+    5: "CardioAI was developed by Olamide 💻🚀",
+    6: "Risk factors include age, high blood pressure, smoking, high cholesterol, diabetes, and obesity.",
+    7: "You're welcome! ❤️",
+    8: "Goodbye! Stay healthy! 🫀",
+    9: "CardioAI uses machine learning to analyze health data (like blood pressure, age, etc.) and predict your risk of heart disease. It’s fast, simple, and browser-based. 🚀"
+  };
+
+  const fieldInfo = {
+    "age": "🧓 <strong>Age:</strong> Your current age in years. Age is a key risk factor — the older you are, the higher the risk.",
+    "resting blood pressure": "🩺 <strong>Resting Blood Pressure (trestbps):</strong> This is your blood pressure (in mm Hg) while you're at rest. High values may be a sign of heart-related issues.",
+    "max heart rate achieved": "🏃 <strong>Max Heart Rate Achieved (thalach):</strong> This is the highest heart rate you reached during exercise or stress testing. It helps evaluate how well your heart handles physical activity.",
+    "chest pain type": "💢 <strong>Chest Pain Type (cp):</strong> This describes the kind of chest pain you're experiencing:<br>0 = Typical angina<br>1 = Atypical angina<br>2 = Non-anginal pain<br>3 = Asymptomatic (no pain).",
+    "exercise-induced angina": "🏋️ <strong>Exercise-Induced Angina (exang):</strong> Indicates whether you experienced chest pain during physical activity.<br>1 = Yes<br>0 = No. It helps assess if exercise triggers heart stress.",
+    "st depression (oldpeak)": "📉 <strong>ST Depression (oldpeak):</strong> This is a number that shows how much your ECG's ST segment dropped during exercise. A higher value may suggest poor blood flow to the heart.",
+    "number of major vessels colored (ca)": "🔍 <strong>Number of Major Vessels Colored (ca):</strong> The number of main heart vessels (from 0 to 3) that were visible using a special dye during a scan. Fewer visible vessels may indicate blockages.",
+    "thalassemia": "🧪 <strong>Thalassemia (thal):</strong> A genetic blood disorder affecting red blood cells and oxygen transport.<br>1 = Fixed defect<br>2 = Normal<br>3 = Reversible defect."
+  };
+
+  const msgLower = msg.toLowerCase().trim();
+
+  // Shortcut number options
+  if (options[msgLower]) {
+    return options[msgLower];
+  }
+
+  // Help menu
+  if (msgLower === "help") {
+    return `
+📌 <strong>Here’s what you can ask me:</strong><br/><br/>
+1. What is heart disease?<br/>
+2. What are the symptoms?<br/>
+3. How can I prevent heart disease?<br/>
+4. What can this site do?<br/>
+5. Who built this?<br/>
+6. What are the risk factors?<br/>
+7. Thank you / Thanks<br/>
+8. Bye<br/>
+9. About CardioAI<br/><br/>
+🧠 You can also ask about any of these fields:<br/>
+– Age<br/>
+– Resting Blood Pressure<br/>
+– Max Heart Rate Achieved<br/>
+– Chest Pain Type<br/>
+– Exercise-Induced Angina<br/>
+– ST Depression (Oldpeak)<br/>
+– Number of Major Vessels Colored (ca)<br/>
+– Thalassemia<br/><br/>
+👉 Or just type a number like "1" for quick answers.
+    `;
+  }
+
+  // Greeting responses
+  if (["hi", "hello", "hey", "yo"].includes(msgLower)) {
+    return "👋 Hello there! I'm your AI assistant. Type <strong>help</strong> to see what I can do.";
+  }
+
+  // Field info match
+  for (let key in fieldInfo) {
+    if (msgLower === key) {
+      return fieldInfo[key];
+    }
+  }
+
+  // Fallback
+  return "🤖 Sorry, I didn’t understand that. Type <strong>help</strong> to see what I can answer or ask about a specific input field.";
+}
+
+
+
+  </script>
+</body>
+</html>

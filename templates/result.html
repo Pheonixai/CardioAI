@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Result – CardioAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #43c6ac, #ff4e50);
+      color: #fff;
+      text-align: center;
+      padding: 60px 20px;
+      margin: 0;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 40px 30px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      max-width: 550px;
+      margin: auto;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 2.4em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .result {
+      font-size: 1.6em;
+      font-weight: bold;
+      margin: 10px 0 20px;
+    }
+
+    .confidence {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    .confidence span {
+      display: block;
+      margin-top: 6px;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 0.95em;
+      color: #f9f9f9;
+      font-style: italic;
+    }
+
+    .info {
+      margin-top: 25px;
+      font-size: 1em;
+      color: #eee;
+    }
+
+    .advice {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 1em;
+    }
+
+    a, button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 24px;
+      background: #ff4e50;
+      color: #fff;
+      border-radius: 10px;
+      font-weight: bold;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 1em;
+    }
+
+    a:hover, button:hover {
+      background: #ff6b6b;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    @media screen and (max-width: 600px) {
+      .card {
+        padding: 30px 20px;
+      }
+
+      .confidence {
+        font-size: 1.1em;
+      }
+
+      .result {
+        font-size: 1.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>CardioAI Result</h1>
+    <div class="result">{{ prediction_text }}</div>
+
+    <div class="confidence">
+      🔵 Class 1 (Heart Disease): <strong>{{ class1 }}%</strong><br />
+      🟢 Class 0 (No Disease): <strong>{{ class0 }}%</strong><br />
+      ✅ Overall Confidence: <strong>{{ confidence }}%</strong>
+    </div>
+
+    <div class="advice">
+      📝 <strong>Personalized Advice:</strong><br />
+      {{ advice }}
+    </div>
+
+    <div class="info">
+      ⏱️ Processing Time: <strong>{{ processing_time }} seconds</strong><br />
+      📅 Generated on: <strong>{{ current_time }}</strong>
+    </div>
+
+    <div class="note">{{ confidence_note }}</div>
+
+    <a href="/">🔁 Predict Again</a>
+
+    <!-- PDF download form -->
+    <form action="/download_report" method="POST">
+      {% for key, value in user_inputs.items() %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endfor %}
+      <button type="submit">📄 Download PDF Report</button>
+    </form>
+  </div>
+</body>
+</html>
