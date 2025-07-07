@@ -128,4 +128,4 @@ def download_report():
         return f"❌ Error during report generation: {e}"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
