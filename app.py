@@ -5,6 +5,7 @@ from xhtml2pdf import pisa
 from io import BytesIO
 from datetime import datetime
 import time
+import os
 
 app = Flask(__name__)
 
@@ -128,4 +129,10 @@ def download_report():
         return f"❌ Error during report generation: {e}"
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(
+
+port = int(os.environ.get('PORT', 5000))
+app.run(host='0.0.0.0', port=port, debug=True)
+
+        #debug=False
+        )
